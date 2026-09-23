@@ -41,4 +41,34 @@
     link.href = "mailto:" + address;
     link.textContent = address;
   }
+
+  // Office hours: location and booking link alternate week to week.
+  // referenceMonday is any Monday that falls in a locations[0] ("A") week -
+  // parity is counted from there, so locations[1] ("B") is the week either
+  // side of it, and so on indefinitely. Update the two entries if the
+  // rooms/links change; only touch referenceMonday if the alternation itself shifts.
+  var officeHoursAlternating = {
+    referenceMonday: "2026-09-28",
+    locations: [
+      { location: "Fry Building, Room LG.12", url: "https://bookings.cloud.microsoft/bookwithme/user/980e4d6a4c3c4638a4389ea97b279dfb@bristol.ac.uk/meetingtype/dd3FW-cVuketpi03tE0h8g2?anonymous&ismsaljsauthenabled" }, // A weeks
+      { location: "Fry Building, Room G.06", url: "https://bookings.cloud.microsoft/bookwithme/user/980e4d6a4c3c4638a4389ea97b279dfb@bristol.ac.uk/meetingtype/dd3FW-cVuketpi03tE0h8g2?anonymous&ismsaljsauthenabled" }  // B weeks
+    ]
+  };
+
+  var officeHoursInfo = document.getElementById("office-hours-info");
+  if (officeHoursInfo) {
+    var msPerDay = 86400000;
+    var todayStr = new Date().toISOString().slice(0, 10);
+    var daysSinceReference = Math.floor(
+      (Date.parse(todayStr) - Date.parse(officeHoursAlternating.referenceMonday)) / msPerDay
+    );
+    var weekIndex = Math.floor(daysSinceReference / 7);
+    var parity = ((weekIndex % 2) + 2) % 2; // normalise in case today is before referenceMonday
+    var thisWeek = officeHoursAlternating.locations[parity];
+
+    officeHoursInfo.innerHTML =
+      '<p class="muted">This week’s office hours: ' + thisWeek.location + '.</p>' +
+      '<div class="button-row"><a class="button" href="' + thisWeek.url +
+      '" target="_blank" rel="noopener">Book a slot</a></div>';
+  }
 })();
